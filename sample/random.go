@@ -2,10 +2,15 @@ package sample
 
 import (
 	"math/rand"
+	"time"
 
 	"github.com/arcbjorn/store-management-system/pb/laptop"
 	"github.com/google/uuid"
 )
+
+func init() {
+	rand.Seed(time.Now().UnixNano())
+}
 
 func randomKeyboadLayout() laptop.Keyboard_Layout {
 	switch rand.Intn(3) {
