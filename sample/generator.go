@@ -2,7 +2,7 @@ package sample
 
 import (
 	"github.com/arcbjorn/store-management-system/pb/laptop"
-	"github.com/golang/protobuf/ptypes"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func NewKeyboard() *laptop.Keyboard {
@@ -38,7 +38,7 @@ func NewCPU() *laptop.CPU {
 
 func NewGPU() *laptop.GPU {
 	brand := randomGPUBrand()
-	name := randomCPUName(brand)
+	name := randomGPUName(brand)
 
 	minGhz := randomFloat64(1.0, 1.5)
 	maxGhz := randomFloat64(minGhz, 2.0)
@@ -121,7 +121,7 @@ func NewLaptop() *laptop.Laptop {
 		},
 		PriceUsd: randomFloat64(1500, 3000),
 		ReleaseYear: uint32(randomInt(2015, 2019)),
-		UpdatedAt: ptypes.TimestampNow(),
+		UpdatedAt: timestamppb.Now(),
 	}
 
 	return laptop
