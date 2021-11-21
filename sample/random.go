@@ -3,18 +3,18 @@ package sample
 import (
 	"math/rand"
 
-	"github.com/arcbjorn/store-management-system/pb/pb"
+	"github.com/arcbjorn/store-management-system/pb/laptop"
 	"github.com/google/uuid"
 )
 
-func randomKeyboadLayout() pb.Keyboard_Layout {
+func randomKeyboadLayout() laptop.Keyboard_Layout {
 	switch rand.Intn(3) {
 		case 1:
-			return pb.Keyboard_QWERTY
+			return laptop.Keyboard_QWERTY
 		case 2:
-			return pb.Keyboard_QWERTZ
+			return laptop.Keyboard_QWERTZ
 		default:
-			return pb.Keyboard_AZERTY
+			return laptop.Keyboard_AZERTY
 	}
 }
 
@@ -84,11 +84,11 @@ func randomLaptopName(brand string) string {
 	}
 }
 
-func randomScreenResolution() *pb.Screen_Resolution {
+func randomScreenResolution() *laptop.Screen_Resolution {
 	height := randomInt(1080, 4320)
 	width := height * 16 / 9
 
-	resolution := &pb.Screen_Resolution{
+	resolution := &laptop.Screen_Resolution{
 		Height: uint32(height),
 		Width: uint32(width),
 	}
@@ -96,12 +96,12 @@ func randomScreenResolution() *pb.Screen_Resolution {
 	return resolution
 }
 
-func randomScreenPanel() pb.Screen_Panel {
+func randomScreenPanel() laptop.Screen_Panel {
 	if rand.Intn(2) == 1 {
-		return pb.Screen_IPS
+		return laptop.Screen_IPS
 	}
 
-	return pb.Screen_OLED
+	return laptop.Screen_OLED
 }
 
 func randomStringFromSet(a ...string) string {

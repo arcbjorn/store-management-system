@@ -1,12 +1,12 @@
 package sample
 
 import (
-	"github.com/arcbjorn/store-management-system/pb/pb"
+	"github.com/arcbjorn/store-management-system/pb/laptop"
 	"github.com/golang/protobuf/ptypes"
 )
 
-func NewKeyboard() *pb.Keyboard {
-	keyboard := &pb.Keyboard {
+func NewKeyboard() *laptop.Keyboard {
+	keyboard := &laptop.Keyboard {
 		Layout: randomKeyboadLayout(),
 		Backlit: randomBool(),
 	}
@@ -14,7 +14,7 @@ func NewKeyboard() *pb.Keyboard {
 	return keyboard
 }
 
-func NewCPU() *pb.CPU {
+func NewCPU() *laptop.CPU {
 	brand := randomCPUBrand()
 	name := randomCPUName(brand)
 
@@ -24,7 +24,7 @@ func NewCPU() *pb.CPU {
 	minGhz := randomFloat64(2.0, 3.5)
 	maxGhz := randomFloat64(minGhz, 5.0)
 
-	cpu := &pb.CPU{
+	cpu := &laptop.CPU{
 		Brand: brand,
 		Name: name,
 		CoreNumber: uint32(coreNumber),
@@ -36,19 +36,19 @@ func NewCPU() *pb.CPU {
 	return cpu
 }
 
-func NewGPU() *pb.GPU {
+func NewGPU() *laptop.GPU {
 	brand := randomGPUBrand()
 	name := randomCPUName(brand)
 
 	minGhz := randomFloat64(1.0, 1.5)
 	maxGhz := randomFloat64(minGhz, 2.0)
 
-	memory := &pb.Memory{
+	memory := &laptop.Memory{
 		Value: uint64(randomInt(2, 6)),
-		Unit: pb.Memory_MEGABYTE,
+		Unit: laptop.Memory_MEGABYTE,
 	}
 
-	gpu := &pb.GPU{
+	gpu := &laptop.GPU{
 		Brand: brand,
 		Name: name,
 		MinGhz: minGhz,
@@ -59,41 +59,41 @@ func NewGPU() *pb.GPU {
 	return gpu
 }
 
-func NewRam() *pb.Memory {
-	ram := &pb.Memory{
+func NewRam() *laptop.Memory {
+	ram := &laptop.Memory{
 		Value: uint64(randomInt(4, 64)),
-		Unit: pb.Memory_GIGABYTE,
+		Unit: laptop.Memory_GIGABYTE,
 	}
 
 	return ram
 }
 
-func NewSSD() *pb.Storage {
-	ssd := &pb.Storage{
-		Driver: pb.Storage_SSD,
-		Memory: &pb.Memory{
+func NewSSD() *laptop.Storage {
+	ssd := &laptop.Storage{
+		Driver: laptop.Storage_SSD,
+		Memory: &laptop.Memory{
 			Value: uint64(randomInt(128, 1024)),
-			Unit: pb.Memory_GIGABYTE,
+			Unit: laptop.Memory_GIGABYTE,
 		},
 	}
 
 	return ssd
 }
 
-func NewHDD() *pb.Storage {
-	ssd := &pb.Storage{
-		Driver: pb.Storage_HDD,
-		Memory: &pb.Memory{
+func NewHDD() *laptop.Storage {
+	ssd := &laptop.Storage{
+		Driver: laptop.Storage_HDD,
+		Memory: &laptop.Memory{
 			Value: uint64(randomInt(1, 6)),
-			Unit: pb.Memory_TERABYTE,
+			Unit: laptop.Memory_TERABYTE,
 		},
 	}
 
 	return ssd
 }
 
-func NewScreen() *pb.Screen {
-	screen := &pb.Screen{
+func NewScreen() *laptop.Screen {
+	screen := &laptop.Screen{
 		SizeInch: randomFloat32(13, 17),
 		Resolution: randomScreenResolution(),
 		Panel: randomScreenPanel(),
@@ -103,20 +103,20 @@ func NewScreen() *pb.Screen {
 	return screen
 }
 
-func newLaptop() *pb.Laptop {
+func NewLaptop() *laptop.Laptop {
 	brand := randomLaptopBrand()
 	name := randomLaptopName(brand)
 
-	laptop := &pb.Laptop{
+	laptop := &laptop.Laptop{
 		Id: randomID(),
 		Brand: brand,
 		Name: name,
 		Cpu: NewCPU(),
-		Gpus: []*pb.GPU{NewGPU()},
-		Storages: []*pb.Storage{NewSSD(), NewHDD()},
+		Gpus: []*laptop.GPU{NewGPU()},
+		Storages: []*laptop.Storage{NewSSD(), NewHDD()},
 		Screen: NewScreen(),
 		Keyboard: NewKeyboard(),
-		Weight: &pb.Laptop_WeightKg{
+		Weight: &laptop.Laptop_WeightKg{
 			WeightKg: randomFloat64(1.0, 3.0),
 		},
 		PriceUsd: randomFloat64(1500, 3000),
