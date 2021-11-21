@@ -6,11 +6,11 @@ option go_package = "/laptop";
 
 import "google/protobuf/timestamp.proto";
 
-import "processor_message.proto";
-import "memory_message.proto";
-import "storage_message.proto";
-import "screen_message.proto";
-import "keyboard_message.proto";
+import "messages/processor_message.proto";
+import "messages/memory_message.proto";
+import "messages/storage_message.proto";
+import "messages/screen_message.proto";
+import "messages/keyboard_message.proto";
 
 message Laptop {
     string id = 1;
