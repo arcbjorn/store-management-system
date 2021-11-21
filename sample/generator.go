@@ -116,6 +116,7 @@ func NewLaptop() *laptop.Laptop {
 		Storages: []*laptop.Storage{NewSSD(), NewHDD()},
 		Screen: NewScreen(),
 		Keyboard: NewKeyboard(),
+		Ram: NewRam(),
 		Weight: &laptop.Laptop_WeightKg{
 			WeightKg: randomFloat64(1.0, 3.0),
 		},
