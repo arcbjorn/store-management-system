@@ -5,6 +5,10 @@ using Go, gRPC
 ### Development
 
 ```shell
+
+# install dependencies
+make install
+
 # generate protocol buffer files (types)
 make gen
 
