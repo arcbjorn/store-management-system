@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package store.management.system;
 
-option go_package = "/pb";
+option go_package = "/laptop";
 
 message Keyboard {
     enum Layout {
