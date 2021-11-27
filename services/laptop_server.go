@@ -16,7 +16,7 @@ type LaptopServer struct {
 	Store LaptopStore
 }
 
-func NewLaptopServer() *LaptopServer {
+func NewLaptopServer(store LaptopStore) *LaptopServer {
 	return &LaptopServer{}
 }
 
