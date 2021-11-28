@@ -13,11 +13,14 @@ import (
 
 // Server that provides services for laptop functionality
 type LaptopServer struct {
+	laptop.UnimplementedLaptopServiceServer
 	Store LaptopStore
 }
 
 func NewLaptopServer(store LaptopStore) *LaptopServer {
-	return &LaptopServer{}
+	return &LaptopServer{
+		Store: store,
+	}
 }
 
 func (server *LaptopServer) CreateLaptop(
