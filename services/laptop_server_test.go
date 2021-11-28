@@ -72,8 +72,8 @@ func TestServerCreateLaptop(t *testing.T) {
 
 			if tc.code == codes.OK {
 				require.NoError(t, err)
-				require.NotNil(t, err)
-				require.NotEmpty(t, err)
+				require.NotNil(t, res)
+				require.NotEmpty(t, res)
 
 				if len(tc.laptop.Id) > 0 {
 					require.Equal(t, tc.laptop.Id, res.Id)
