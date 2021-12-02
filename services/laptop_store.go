@@ -87,7 +87,7 @@ func isQualified(filter *laptop.Filter, laptop *laptop.Laptop) bool {
 		return false
 	}
 
-	if laptop.GetCpu().GetMinGhz() < filter.GetMainCpuGhz() {
+	if laptop.GetCpu().GetMinGhz() < filter.GetMinCpuGhz() {
 		return false
 	}
 
