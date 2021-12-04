@@ -56,13 +56,13 @@ func searchLaptop(laptopClient laptop.LaptopServiceClient, filter *laptop.Filter
 		}
 
 		lp := res.GetLaptop()
-		log.Print("found: ", lp.GetId())
-		log.Print("brand: ", lp.GetBrand())
-		log.Print("name: ", lp.GetName())
-		log.Print("cpu cores: ", lp.GetCpu().GetCoreNumber())
-		log.Print("cpu min ghz: ", lp.GetCpu().GetMinGhz())
-		log.Print("ram: ", lp.GetRam().GetValue(), lp.GetRam().GetUnit())
-		log.Print("price: ", lp.GetPriceUsd())
+		log.Print("- found: ", lp.GetId())
+		log.Print("  - brand: ", lp.GetBrand())
+		log.Print("  - name: ", lp.GetName())
+		log.Print("  - cpu cores: ", lp.GetCpu().GetCoreNumber())
+		log.Print("  - cpu min ghz: ", lp.GetCpu().GetMinGhz())
+		log.Print("  - ram: ", lp.GetRam().GetValue(), lp.GetRam().GetUnit())
+		log.Print("  - price: ", lp.GetPriceUsd())
 	}
 }
 
