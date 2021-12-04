@@ -1,9 +1,12 @@
 package services
 
 import (
+	"context"
 	"errors"
 	"fmt"
+	"log"
 	"sync"
+	"time"
 
 	"github.com/arcbjorn/store-management-system/pb/laptop"
 	"github.com/jinzhu/copier"
@@ -14,7 +17,7 @@ var ErrAlreadyExists = errors.New("record already exists")
 type LaptopStore interface {
 	Save(laptop *laptop.Laptop) error
 	Find(id string) (*laptop.Laptop, error)
-	Search(filter *laptop.Filter, found func(laptop *laptop.Laptop) error) error
+	Search(ctx context.Context, filter *laptop.Filter, found func(laptop *laptop.Laptop) error) error
 }
 
 type InMemoryLaptopStore struct {
@@ -57,13 +60,21 @@ func (store *InMemoryLaptopStore) Find(id string) (*laptop.Laptop, error) {
 	return deepCopy(foundLaptop)
 }
 
-func (store *InMemoryLaptopStore) Search(filter *laptop.Filter, found func(laptop *laptop.Laptop) error) error {
+func (store *InMemoryLaptopStore) Search(ctx context.Context, filter *laptop.Filter, found func(laptop *laptop.Laptop) error) error {
 	store.mutex.RLock()
 	defer store.mutex.RUnlock()
 
-	for _, laptop := range store.data {
-		if isQualified(filter, laptop) {
-			other, err := deepCopy(laptop)
+	for _, lp := range store.data {
+		time.Sleep(time.Second)
+		log.Print("checking laptop id: ", lp.GetId())
+
+		if ctx.Err() == context.Canceled || ctx.Err() == context.DeadlineExceeded {
+			log.Printf("context is cancelled")
+			return errors.New("context is cancelled")
+		}
+
+		if isQualified(filter, lp) {
+			other, err := deepCopy(lp)
 			if err != nil {
 				return err
 			}

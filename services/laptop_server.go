@@ -80,6 +80,7 @@ func (server *LaptopServer) SearchLaptop(
 	log.Printf("receive a search-laptop request with filter: %v", filter)
 
 	err := server.Store.Search(
+		stream.Context(),
 		filter,
 		func(lp *laptop.Laptop) error {
 			res := &laptop.SearchLaptopResponse{Laptop: lp}
