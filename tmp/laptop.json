@@ -1,62 +1,62 @@
 {
-  "id":  "eeea5365-8903-40f3-b8f8-629ca7830df5",
-  "brand":  "Lenovo",
-  "name":  "Thinkpad P1",
-  "cpu":  {
-    "brand":  "Intel",
-    "name":  "Xeon E-2286M",
-    "core_number":  7,
-    "thread_number":  10,
-    "min_ghz":  3.0644847935131208,
-    "max_ghz":  3.886244736871201
+  "id": "eeea5365-8903-40f3-b8f8-629ca7830df5",
+  "brand": "Lenovo",
+  "name": "Thinkpad P1",
+  "cpu": {
+    "brand": "Intel",
+    "name": "Xeon E-2286M",
+    "core_number": 7,
+    "thread_number": 10,
+    "min_ghz": 3.0644847935131208,
+    "max_ghz": 3.886244736871201
   },
-  "ram":  {
-    "value":  "49",
-    "unit":  "GIGABYTE"
+  "ram": {
+    "value": "49",
+    "unit": "GIGABYTE"
   },
-  "gpus":  [
+  "gpus": [
     {
-      "brand":  "AMD",
-      "name":  "RX Vega-56",
-      "min_ghz":  1.4452109958940649,
-      "max_ghz":  1.9142408460041709,
-      "memory":  {
-        "value":  "6",
-        "unit":  "MEGABYTE"
+      "brand": "AMD",
+      "name": "RX Vega-56",
+      "min_ghz": 1.4452109958940649,
+      "max_ghz": 1.9142408460041709,
+      "memory": {
+        "value": "6",
+        "unit": "MEGABYTE"
       }
     }
   ],
-  "storages":  [
+  "storages": [
     {
-      "driver":  "SSD",
-      "memory":  {
-        "value":  "609",
-        "unit":  "GIGABYTE"
+      "driver": "SSD",
+      "memory": {
+        "value": "609",
+        "unit": "GIGABYTE"
       }
     },
     {
-      "driver":  "HDD",
-      "memory":  {
-        "value":  "4",
-        "unit":  "TERABYTE"
+      "driver": "HDD",
+      "memory": {
+        "value": "4",
+        "unit": "TERABYTE"
       }
     }
   ],
-  "screen":  {
-    "size_inch":  15.074935,
-    "resolution":  {
-      "width":  5020,
-      "height":  2824
+  "screen": {
+    "size_inch": 15.074935,
+    "resolution": {
+      "width": 5020,
+      "height": 2824
     },
-    "panel":  "IPS",
-    "multitouch":  false
+    "panel": "IPS",
+    "multitouch": false
   },
-  "keyboard":  {
-    "layout":  "QWERTZ",
-    "backlit":  false
+  "keyboard": {
+    "layout": "QWERTZ",
+    "backlit": false
   },
-  "weight_kg":  1.5065910313645414,
-  "price_usd":  2313.1191536474466,
-  "release_year":  2015,
-  "updated_at":  "2021-11-21T15:56:04.668765Z"
+  "weight_kg": 1.5065910313645414,
+  "price_usd": 2313.1191536474466,
+  "release_year": 2015,
+  "updated_at": "2021-11-21T15:56:04.668765Z"
 }
