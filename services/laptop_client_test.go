@@ -2,6 +2,7 @@ package services_test
 
 import (
 	"context"
+	"io"
 	"net"
 	"testing"
 
@@ -16,7 +17,7 @@ import (
 func TestClientCreateLaptop(t *testing.T) {
 	t.Parallel()
 
-	laptopServer, serverAddress := startTestLaptopServer(t)
+	laptopServer, serverAddress := startTestLaptopServer(t, services.NewInMemoryLaptopStore())
 	laptopClient := newTestLaptopClient(t, serverAddress)
 
 	newLaptop := sample.NewLaptop()
@@ -37,7 +38,7 @@ func TestClientCreateLaptop(t *testing.T) {
 	requireSameLaptop(t, newLaptop, other)
 }
 
-func startTestLaptopServer(t *testing.T) (*services.LaptopServer, string) {
+func startTestLaptopServer(t *testing.T, store services.LaptopStore) (*services.LaptopServer, string) {
 	laptopServer := services.NewLaptopServer(services.NewInMemoryLaptopStore())
 
 	grpcServer := grpc.NewServer()
@@ -65,4 +66,72 @@ func requireSameLaptop(t *testing.T, lt1 *laptop.Laptop, lt2 *laptop.Laptop) {
 	require.NoError(t, err)
 
 	require.Equal(t, json1, json2)
+}
+
+func TestClientSearchLaptop(t *testing.T) {
+	t.Parallel()
+
+	filter := &laptop.Filter{
+		MaxPriceUsd: 2000,
+		MinCpuCores: 4,
+		MinCpuGhz:   2.2,
+		MinRam:      &laptop.Memory{Value: 8, Unit: laptop.Memory_GIGABYTE},
+	}
+
+	laptopStore := services.NewInMemoryLaptopStore()
+	expectedIDs := make(map[string]bool)
+
+	for i := 0; i < 6; i++ {
+		lp := sample.NewLaptop()
+
+		switch i {
+		case 0:
+			lp.PriceUsd = 2500
+		case 1:
+			lp.Cpu.CoreNumber = 2
+		case 2:
+			lp.Cpu.MinGhz = 2.0
+		case 3:
+			lp.Ram = &laptop.Memory{Value: 4096, Unit: laptop.Memory_MEGABYTE}
+		case 4:
+			lp.PriceUsd = 1999
+			lp.Cpu.CoreNumber = 4
+			lp.Cpu.MinGhz = 2.5
+			lp.Cpu.MaxGhz = lp.Cpu.MinGhz + 2.0
+			lp.Ram = &laptop.Memory{Value: 16, Unit: laptop.Memory_GIGABYTE}
+			expectedIDs[lp.Id] = true
+		case 5:
+			lp.PriceUsd = 2000
+			lp.Cpu.CoreNumber = 6
+			lp.Cpu.MinGhz = 2.8
+			lp.Cpu.MaxGhz = lp.Cpu.MinGhz + 2.0
+			lp.Ram = &laptop.Memory{Value: 64, Unit: laptop.Memory_GIGABYTE}
+			expectedIDs[lp.Id] = true
+		}
+
+		err := laptopStore.Save(lp)
+		require.NoError(t, err)
+	}
+
+	_, serverAddress := startTestLaptopServer(t, laptopStore)
+	laptopClient := newTestLaptopClient(t, serverAddress)
+
+	req := &laptop.SearchLaptopRequest{Filter: filter}
+	stream, err := laptopClient.SearchLaptop(context.Background(), req)
+	require.NoError(t, err)
+
+	found := 0
+	for {
+		res, err := stream.Recv()
+		if err == io.EOF {
+			break
+		}
+
+		require.NoError(t, err)
+		require.Contains(t, expectedIDs, res.GetLaptop().GetId())
+
+		found += 1
+	}
+
+	require.Equal(t, len(expectedIDs), found)
 }
