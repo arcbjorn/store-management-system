@@ -1,8 +1,10 @@
 package services
 
 import (
+	"bytes"
 	"context"
 	"errors"
+	"io"
 	"log"
 
 	"github.com/arcbjorn/store-management-system/pb/laptop"
@@ -11,16 +13,16 @@ import (
 	"google.golang.org/grpc/status"
 )
 
+const maxImageSize = 1 << 20
+
 // Server that provides services for laptop functionality
 type LaptopServer struct {
-	laptop.UnimplementedLaptopServiceServer
-	Store LaptopStore
+	laptopStore LaptopStore
+	imageStore  ImageStore
 }
 
-func NewLaptopServer(store LaptopStore) *LaptopServer {
-	return &LaptopServer{
-		Store: store,
-	}
+func NewLaptopServer(laptopStore LaptopStore, imageStore ImageStore) *LaptopServer {
+	return &LaptopServer{laptopStore, imageStore}
 }
 
 func (server *LaptopServer) CreateLaptop(
@@ -43,18 +45,12 @@ func (server *LaptopServer) CreateLaptop(
 		laptopDto.Id = id.String()
 	}
 
-	if ctx.Err() == context.Canceled {
-		log.Print("request is cancelled")
-		return nil, status.Error(codes.Canceled, "request is cancelled")
-	}
-
-	if ctx.Err() == context.DeadlineExceeded {
-		log.Print("deadline is exceeded")
-		return nil, status.Error(codes.DeadlineExceeded, "deadline is exceeded")
+	if err := getContextError(ctx); err != nil {
+		return nil, err
 	}
 
 	// save new Laptop to store
-	err := server.Store.Save(laptopDto)
+	err := server.laptopStore.Save(laptopDto)
 	if err != nil {
 		code := codes.Internal
 		if errors.Is(err, ErrAlreadyExists) {
@@ -79,7 +75,7 @@ func (server *LaptopServer) SearchLaptop(
 	filter := req.GetFilter()
 	log.Printf("receive a search-laptop request with filter: %v", filter)
 
-	err := server.Store.Search(
+	err := server.laptopStore.Search(
 		stream.Context(),
 		filter,
 		func(lp *laptop.Laptop) error {
@@ -99,4 +95,94 @@ func (server *LaptopServer) SearchLaptop(
 	}
 
 	return nil
+}
+
+func (server *LaptopServer) UploadImage(stream laptop.LaptopService_UploadImageServer) error {
+	req, err := stream.Recv()
+	if err != nil {
+		logError(status.Errorf(codes.Unknown, "cannot receive image info"))
+	}
+
+	laptopID := req.GetInfo().GetLaptopId()
+	imageType := req.GetInfo().GetImageType()
+	log.Printf("receive an upload-image request for laptop %s with image type %s", laptopID, imageType)
+
+	lp, err := server.laptopStore.Find(laptopID)
+	if err != nil {
+		return logError(status.Errorf(codes.Internal, "cannot find laptop: %v", err))
+	} else if lp == nil {
+		return logError(status.Errorf(codes.InvalidArgument, "laptop %s does not exist", laptopID))
+	}
+
+	imageData := bytes.Buffer{}
+	imageSize := 0
+
+	for {
+		if err := getContextError(stream.Context()); err != nil {
+			return nil
+		}
+
+		log.Printf("waiting for more data")
+
+		req, err := stream.Recv()
+		if err == io.EOF {
+			log.Print("no more data")
+			break
+		}
+
+		if err != nil {
+			return logError(status.Errorf(codes.Unknown, "cannot receive data: %v", err))
+		}
+
+		chunk := req.GetChunkData()
+		size := len(chunk)
+
+		log.Printf("received a chunk with size: %d", size)
+
+		imageSize += size
+		if imageSize > maxImageSize {
+			return logError(status.Errorf(codes.InvalidArgument, "image is too large: %d > %d", imageSize, maxImageSize))
+		}
+
+		_, err = imageData.Write(chunk)
+		if err != nil {
+			return logError(status.Errorf(codes.Internal, "cannot write data: %v", err))
+		}
+	}
+
+	imageID, err := server.imageStore.Save(laptopID, imageType, imageData)
+	if err != nil {
+		return logError(status.Errorf(codes.Internal, "cannot save image to the store: %v", err))
+	}
+
+	res := &laptop.UploadImageResponse{
+		Id:   imageID,
+		Size: uint32(imageSize),
+	}
+
+	err = stream.SendAndClose(res)
+	if err != nil {
+		return logError(status.Errorf(codes.Unknown, "cannot send response: %v", err))
+	}
+
+	log.Printf("saved image with id: %s, size: %d", imageID, imageSize)
+	return nil
+}
+
+func logError(err error) error {
+	if err != nil {
+		log.Print(err)
+	}
+	return err
+}
+
+func getContextError(ctx context.Context) error {
+	switch ctx.Err() {
+	case context.Canceled:
+		return logError(status.Error(codes.Canceled, "request is cancelled"))
+	case context.DeadlineExceeded:
+		return logError(status.Error(codes.DeadlineExceeded, "deadline is exceeded"))
+	default:
+		return nil
+	}
 }
