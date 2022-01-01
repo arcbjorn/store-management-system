@@ -1,9 +1,13 @@
 package services_test
 
 import (
+	"bufio"
 	"context"
+	"fmt"
 	"io"
 	"net"
+	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/arcbjorn/store-management-system/pb/laptop"
@@ -17,7 +21,8 @@ import (
 func TestClientCreateLaptop(t *testing.T) {
 	t.Parallel()
 
-	laptopServer, serverAddress := startTestLaptopServer(t, services.NewInMemoryLaptopStore())
+	laptopStore := services.NewInMemoryLaptopStore()
+	serverAddress := startTestLaptopServer(t, laptopStore, nil)
 	laptopClient := newTestLaptopClient(t, serverAddress)
 
 	newLaptop := sample.NewLaptop()
@@ -31,15 +36,15 @@ func TestClientCreateLaptop(t *testing.T) {
 	require.NotNil(t, res)
 	require.Equal(t, expectedID, res.Id)
 
-	other, err := laptopServer.Store.Find(res.Id)
+	other, err := laptopStore.Find(res.Id)
 	require.NoError(t, err)
 	require.NotNil(t, res)
 
 	requireSameLaptop(t, newLaptop, other)
 }
 
-func startTestLaptopServer(t *testing.T, store services.LaptopStore) (*services.LaptopServer, string) {
-	laptopServer := services.NewLaptopServer(services.NewInMemoryLaptopStore())
+func startTestLaptopServer(t *testing.T, laptopStore services.LaptopStore, imageStore services.ImageStore) string {
+	laptopServer := services.NewLaptopServer(laptopStore, imageStore)
 
 	grpcServer := grpc.NewServer()
 	laptop.RegisterLaptopServiceServer(grpcServer, laptopServer)
@@ -49,7 +54,7 @@ func startTestLaptopServer(t *testing.T, store services.LaptopStore) (*services.
 
 	go grpcServer.Serve(listener)
 
-	return laptopServer, listener.Addr().String()
+	return listener.Addr().String()
 }
 
 func newTestLaptopClient(t *testing.T, serverAddress string) laptop.LaptopServiceClient {
@@ -113,7 +118,7 @@ func TestClientSearchLaptop(t *testing.T) {
 		require.NoError(t, err)
 	}
 
-	_, serverAddress := startTestLaptopServer(t, laptopStore)
+	serverAddress := startTestLaptopServer(t, laptopStore, nil)
 	laptopClient := newTestLaptopClient(t, serverAddress)
 
 	req := &laptop.SearchLaptopRequest{Filter: filter}
@@ -134,4 +139,74 @@ func TestClientSearchLaptop(t *testing.T) {
 	}
 
 	require.Equal(t, len(expectedIDs), found)
+}
+
+func TestClientUploadImage(t *testing.T) {
+	t.Parallel()
+
+	testImageFolder := "../tmp"
+
+	laptopStore := services.NewInMemoryLaptopStore()
+	imageStore := services.NewDiskImageStore(testImageFolder)
+
+	lp := sample.NewLaptop()
+	err := laptopStore.Save(lp)
+	require.NoError(t, err)
+
+	serverAddress := startTestLaptopServer(t, laptopStore, imageStore)
+	laptopClient := newTestLaptopClient(t, serverAddress)
+
+	imagePath := fmt.Sprintf("%s/laptop.jpg", testImageFolder)
+	file, err := os.Open(imagePath)
+	require.NoError(t, err)
+	defer file.Close()
+
+	stream, err := laptopClient.UploadImage(context.Background())
+	require.NoError(t, err)
+
+	imageType := filepath.Ext(imagePath)
+
+	req := &laptop.UploadImageRequest{
+		Data: &laptop.UploadImageRequest_Info{
+			Info: &laptop.ImageInfo{
+				LaptopId:  lp.GetId(),
+				ImageType: imageType,
+			},
+		},
+	}
+
+	err = stream.Send(req)
+	require.NoError(t, err)
+
+	reader := bufio.NewReader(file)
+	buffer := make([]byte, 1024)
+	size := 0
+
+	for {
+		n, err := reader.Read(buffer)
+		if err == io.EOF {
+			break
+		}
+
+		require.NoError(t, err)
+		size += n
+
+		req := &laptop.UploadImageRequest{
+			Data: &laptop.UploadImageRequest_ChunkData{
+				ChunkData: buffer[:n],
+			},
+		}
+
+		err = stream.Send(req)
+		require.NoError(t, err)
+	}
+
+	res, err := stream.CloseAndRecv()
+	require.NoError(t, err)
+	require.NotZero(t, res.GetId())
+	require.EqualValues(t, size, res.GetSize())
+
+	savedImagePath := fmt.Sprintf("%s/%s%s", testImageFolder, res.GetId(), imageType)
+	require.FileExists(t, savedImagePath)
+	require.NoError(t, os.Remove(savedImagePath))
 }
