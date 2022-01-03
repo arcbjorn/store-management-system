@@ -6,8 +6,8 @@ import (
 )
 
 func NewKeyboard() *laptop.Keyboard {
-	keyboard := &laptop.Keyboard {
-		Layout: randomKeyboadLayout(),
+	keyboard := &laptop.Keyboard{
+		Layout:  randomKeyboadLayout(),
 		Backlit: randomBool(),
 	}
 
@@ -25,12 +25,12 @@ func NewCPU() *laptop.CPU {
 	maxGhz := randomFloat64(minGhz, 5.0)
 
 	cpu := &laptop.CPU{
-		Brand: brand,
-		Name: name,
-		CoreNumber: uint32(coreNumber),
+		Brand:        brand,
+		Name:         name,
+		CoreNumber:   uint32(coreNumber),
 		ThreadNumber: uint32(threadNumber),
-		MinGhz: minGhz,
-		MaxGhz: maxGhz,
+		MinGhz:       minGhz,
+		MaxGhz:       maxGhz,
 	}
 
 	return cpu
@@ -45,12 +45,12 @@ func NewGPU() *laptop.GPU {
 
 	memory := &laptop.Memory{
 		Value: uint64(randomInt(2, 6)),
-		Unit: laptop.Memory_MEGABYTE,
+		Unit:  laptop.Memory_MEGABYTE,
 	}
 
 	gpu := &laptop.GPU{
-		Brand: brand,
-		Name: name,
+		Brand:  brand,
+		Name:   name,
 		MinGhz: minGhz,
 		MaxGhz: maxGhz,
 		Memory: memory,
@@ -62,7 +62,7 @@ func NewGPU() *laptop.GPU {
 func NewRam() *laptop.Memory {
 	ram := &laptop.Memory{
 		Value: uint64(randomInt(4, 64)),
-		Unit: laptop.Memory_GIGABYTE,
+		Unit:  laptop.Memory_GIGABYTE,
 	}
 
 	return ram
@@ -73,7 +73,7 @@ func NewSSD() *laptop.Storage {
 		Driver: laptop.Storage_SSD,
 		Memory: &laptop.Memory{
 			Value: uint64(randomInt(128, 1024)),
-			Unit: laptop.Memory_GIGABYTE,
+			Unit:  laptop.Memory_GIGABYTE,
 		},
 	}
 
@@ -85,7 +85,7 @@ func NewHDD() *laptop.Storage {
 		Driver: laptop.Storage_HDD,
 		Memory: &laptop.Memory{
 			Value: uint64(randomInt(1, 6)),
-			Unit: laptop.Memory_TERABYTE,
+			Unit:  laptop.Memory_TERABYTE,
 		},
 	}
 
@@ -94,9 +94,9 @@ func NewHDD() *laptop.Storage {
 
 func NewScreen() *laptop.Screen {
 	screen := &laptop.Screen{
-		SizeInch: randomFloat32(13, 17),
+		SizeInch:   randomFloat32(13, 17),
 		Resolution: randomScreenResolution(),
-		Panel: randomScreenPanel(),
+		Panel:      randomScreenPanel(),
 		Multitouch: randomBool(),
 	}
 
@@ -108,22 +108,26 @@ func NewLaptop() *laptop.Laptop {
 	name := randomLaptopName(brand)
 
 	laptop := &laptop.Laptop{
-		Id: randomID(),
-		Brand: brand,
-		Name: name,
-		Cpu: NewCPU(),
-		Gpus: []*laptop.GPU{NewGPU()},
+		Id:       randomID(),
+		Brand:    brand,
+		Name:     name,
+		Cpu:      NewCPU(),
+		Gpus:     []*laptop.GPU{NewGPU()},
 		Storages: []*laptop.Storage{NewSSD(), NewHDD()},
-		Screen: NewScreen(),
+		Screen:   NewScreen(),
 		Keyboard: NewKeyboard(),
-		Ram: NewRam(),
+		Ram:      NewRam(),
 		Weight: &laptop.Laptop_WeightKg{
 			WeightKg: randomFloat64(1.0, 3.0),
 		},
-		PriceUsd: randomFloat64(1500, 3000),
+		PriceUsd:    randomFloat64(1500, 3000),
 		ReleaseYear: uint32(randomInt(2015, 2019)),
-		UpdatedAt: timestamppb.Now(),
+		UpdatedAt:   timestamppb.Now(),
 	}
 
 	return laptop
+}
+
+func RandomLaptopScore() float64 {
+	return float64(randomInt(1, 10))
 }
