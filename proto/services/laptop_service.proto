@@ -37,14 +37,14 @@ message UploadImageResponse {
 }
 
 message RateLaptopRequest {
-    string id = 1;
-    uint32 size = 2;
+    string laptop_id = 1;
+    double score = 2;
 }
 
 message RateLaptopResponse {
     string laptop_id = 1;
     uint32 rated_count = 2;
-    double averate_score = 3;
+    double average_score = 3;
 }
 
 service LaptopService {
