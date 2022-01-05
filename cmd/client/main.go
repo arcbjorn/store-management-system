@@ -190,7 +190,7 @@ func testRateLaptop(laptopClient laptop.LaptopServiceClient) {
 func main() {
 	serverAddress := flag.String("address", "", "the server address")
 	flag.Parse()
-	log.Printf("dial sever %s", *serverAddress)
+	log.Printf("dial server %s", *serverAddress)
 
 	conn, err := grpc.Dial(*serverAddress, grpc.WithInsecure())
 	if err != nil {
