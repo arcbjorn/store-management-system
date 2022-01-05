@@ -36,7 +36,7 @@ func seedUsers(userStore services.UserStore) error {
 }
 
 func accessibleRoles() map[string][]string {
-	const laptopServicePath = "/store.management.system.LaptopService"
+	const laptopServicePath = "/store.management.system.LaptopService/"
 
 	return map[string][]string{
 		laptopServicePath + "CreateLaptop": {"admin"},
