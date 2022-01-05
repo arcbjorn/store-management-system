@@ -2,6 +2,13 @@
 
 using Go, gRPC
 
+System uses:
+
+- Client streaming
+- Server streaming
+- Bi-directional streaming
+- JWT Authentication with gRPC interceptors
+
 ### Development
 
 ```shell
