@@ -21,3 +21,13 @@ make run
 # run all tests
 make test
 ```
+
+### Debugging with [Evans](https://github.com/ktr0731/evans)
+
+```shell
+# run server
+make server
+
+# run Evans (2nd terminal)
+evans -r repl -p 8080
+```
