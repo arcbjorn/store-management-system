@@ -9,6 +9,7 @@ import (
 	"github.com/arcbjorn/store-management-system/pb/laptop"
 	"github.com/arcbjorn/store-management-system/services"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 )
 
 func main() {
@@ -23,8 +24,9 @@ func main() {
 	laptopServer := services.NewLaptopServer(laptopStore, imageStore, ratingStore)
 	grpcServer := grpc.NewServer()
 	laptop.RegisterLaptopServiceServer(grpcServer, laptopServer)
+	reflection.Register(grpcServer)
 
-	address := fmt.Sprintf("0.0.0.0:%d", *port)
+	address := fmt.Sprintf("localhost:%d", *port)
 	listener, err := net.Listen("tcp", address)
 	if err != nil {
 		log.Fatal("cannot start server: ", err)
