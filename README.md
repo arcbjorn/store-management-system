@@ -6,8 +6,8 @@ System uses:
 
 - Client streaming
 - Server streaming
-- Bi-directional streaming
-- JWT Authentication with gRPC interceptors
+- Bidirectional streaming
+- JWT Authentication with roles using gRPC interceptors
 
 ### Development
 
